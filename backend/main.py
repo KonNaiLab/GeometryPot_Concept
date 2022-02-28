@@ -40,7 +40,7 @@ def insert():
     x = mycol.insert_one(body)
     return "success"
 
-@app.route("/add_pot", methods["POST"])
+@app.route("/add_pot", methods=["POST"])
 def add_pot():
     data = request.get_json()
     print(data["Name"])
