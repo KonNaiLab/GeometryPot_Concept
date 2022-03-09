@@ -12,7 +12,7 @@ app = Flask(__name__)
 def connect():
     # My test server link that will change when you install in another server
     myclient = pymongo.MongoClient(
-        "mongodb+srv://chuncheiw_team:o6bROnEYRtsiRle2@cluster0.jjsfz.mongodb.net/test?retryWrites=true&w=majority", tls=True, tlsAllowInvalidCertificates=True)
+        "mongodb+srv://chuncheiw_team:o6bROnEYRtsiRle2@cluster0.jjsfz.mongodb.net/Geometry_Pot?retryWrites=true&w=majority", tls=True, tlsAllowInvalidCertificates=True)
     mydb = myclient["Geometry_Pot"]
     print(mydb)
     return mydb
