@@ -60,7 +60,7 @@ def home():
     return "Hello"
 
 '''Line Bot'''
-
+'''
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -84,25 +84,26 @@ def handle_message(event):
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=event.message.text))
-
-@app.route('/add_data', methods=["POST"])
-def insert():
-    body = request.get_json()
-    print(body)
-    mydb = connect()
-    x = mydb["test1"].insert_one(body)
-    return "success"
-''''''
 def reply_message(token, message):
     line_bot_api.reply_message(token, TextSendMessage(text=message))
 
 def broadcast_message(message):
-    line_bot_api.broadcast(TextSendMessage(
-        text=message))
+    line_bot_api.broadcast(TextSendMessage(text=message))
 
     return 'Notified Janitors'
-''''''
-
+'''
+'''
+@app.route('/add_data', methods=["POST"])
+def insert():
+    body = request.get_json()
+    mydb = connect()
+    x = mydb["test1"].insert_one(body)
+    return "sus"
+'''
+''' mydb["Pots"].insert_one(body)
+default = {"Name":body["Name"],"Fan":"off","Pump":"off"}
+mydb["Status"].insert_one(default)
+'''
 @app.route("/add_pot", methods=["POST"])
 def add_pot():
     data = request.get_json()
@@ -113,9 +114,29 @@ def add_pot():
     print(d)
     return "ok"
 
+@app.route("/addpot", methods=["POST"])
+def set_time_light():
+    body = request.get_json()
+    mydb = connect()
+    mydb["Pots"].insert_one(body)
+    default = {"Name":body["Name"],"Fan":"off","Pump":"off"}
+    mydb["Status"].insert_one(default)
+    return "k"
 
-    # except:
-    #    return "fail"
+@app.route("/patch_pot", methods=["PATCH"])
+def patch_pot():
+    body = request.get_json()
+    mydb = connect()
+    mydb["Pots"].find_one_and_replace({"Name":body["Name"]},body)
+    return "k"
+
+@app.route("/patch_status", methods=["PATCH"])
+def patch_status():
+    body = request.get_json()
+    mydb = connect()
+    mydb["Status"].find_one_and_replace({"Name":body["Name"]},body)
+    return "k"
+
 if __name__ == "__main__":
     # print("hello")
     app.run(debug=True, port=5555)
