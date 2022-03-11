@@ -117,15 +117,6 @@ def insert():
     x = mydb["test1"].insert_one(body)
     return "success"
 
-'''def reply_message(token, message):
-    line_bot_api.reply_message(token, TextSendMessage(text=message))
-
-def broadcast_message(message):
-    line_bot_api.broadcast(TextSendMessage(
-        text=message))
-
-    return 'Notified Janitors'''
-
 
 @app.route("/add_pot", methods=["POST"])
 def add_pot():
