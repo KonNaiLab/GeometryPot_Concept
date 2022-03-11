@@ -20,16 +20,33 @@ def connect():
 
 def addpots(data):
     mydb = connect()
+    ### add to pots
     pots = mydb["Pots"]
     newd = {
         "Name": data["Name"],
-        "Lighttime": [8.00, 18.00],
-        "HumidityLV": 0,
-        "TemperatureLV": 0,
+        "Lighttime": [[8.00, 18.00],[8.00, 18.00]],
+        "HumidityLV": [0, 0],
+        "TemperatureLV": [0,0],
     }
     pots.insert_one(newd)
-    return newd
 
+    #######
+    ### add to status
+    pots = mydb["Status"]
+    newd = {
+        "Light": 0,
+        "Humid": 0,
+        "Temperature": 0,
+    }
+    #######
+    ### manual mode
+
+    pots.insert_one(newd)
+    return newd
+    
+
+def addstatus(data):
+    return 0
 
 db = connect()
 print(db)
