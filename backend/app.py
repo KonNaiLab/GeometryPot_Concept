@@ -1,3 +1,4 @@
+#from crypt import methods
 from flask import Flask, request, jsonify, make_response
 import pymongo
 import os
@@ -50,19 +51,46 @@ def addpots(data):
 
     #######
     ### add to status
-    pots = mydb["Status"]
-    newd = {
-        "Light": 0,
-        "Humid": 0,
-        "Temperature": 0,
+    sta = mydb["Status"]
+    sd = {
+        "Light": [0, 0],
+        "Humid": [0, 0],
+        "Temperature": [0, 0],
+        "HaveW": [0, 0],
     }
     #######
+    sta.insert_one(sd)
     ### manual mode
-
-    pots.insert_one(newd)
+    manual = mydb["Manual"]
+    man = {
+        "fan": [0,0],
+        "pump" : [0,0]
+    }
+    manual.insert_one(man)
     return newd
     
-
+def setpot(data, potnumber, mode):
+    modedict = {
+        "light" : "Lighttime",
+        "humid" : "HumidityLV",
+        "temp" : "TemperatureLV"
+    }
+    mydb = connect()
+    ### add to pots
+    pots = mydb["Pots"]
+    x = pots.find_one()
+    myquery = { "Name": "Demo" }
+    dat = x[modedict[mode]]
+    if potnumber == "all":
+        print("all")
+        dat[0] = data
+        dat[1] = data
+    else:
+        print(int(potnumber))
+        dat[int(potnumber)-1] = data
+    newvalues = { "$set": { modedict[mode]: dat } }
+    pots.update_one(myquery, newvalues)
+    return 0
 def addstatus(data):
     return 0
 
@@ -109,7 +137,7 @@ def insert():
     mydb = connect()
     x = mydb["test1"].insert_one(body)
     return "success"
-''''''
+
 def reply_message(token, message):
     line_bot_api.reply_message(token, TextSendMessage(text=message))
 
@@ -118,7 +146,7 @@ def broadcast_message(message):
         text=message))
 
     return 'Notified Janitors'
-''''''
+
 
 @app.route("/add_pot", methods=["POST"])
 def add_pot():
@@ -130,9 +158,16 @@ def add_pot():
     print(d)
     return "ok"
 
+@app.route("/set_pot/<potnumber>/<mode>", methods=["POST"])
+def set_pot(potnumber, mode):
+    data = request.get_json()
+    print(potnumber)
+    print(type(potnumber))
+    print(mode)
+    print(type(mode))
+    a = setpot(data["data"], potnumber, mode)
+    return "ok number one"
 
-    # except:
-    #    return "fail"
 if __name__ == "__main__":
     # print("hello")
     app.run(debug=True, port=5555)
