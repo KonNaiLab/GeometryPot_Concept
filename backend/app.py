@@ -1,4 +1,3 @@
-#from crypt import methods
 from flask import Flask, request, jsonify, make_response
 import pymongo
 import os
@@ -71,12 +70,39 @@ def setpot(data, potnumber, mode):
     newvalues = { "$set": { modedict[mode]: dat } }
     pots.update_one(myquery, newvalues)
     return 0
-def addstatus(data):
-    return 0
 
-db = connect()
-print(db)
+def askstatus(potnumber, ask):
+    askdict = {
+        "light": "Light",
+        "humid": "Humid",
+        "temp" : "Temperature",
+        "tank" : "HaveW"
+    }
+    mydb = connect()
+    status = mydb["Status"]
+    data = status.find_one()
+    if ask == "all":
+        return {
+            "light": (data[askdict["light"]])[potnumber-1],
+            "humid": (data[askdict["humid"]])[potnumber-1],
+            "temp" : (data[askdict["temp"]])[potnumber-1],
+            "tank" : (data[askdict["tank"]])[potnumber-1]
+        }
+    else:
+        return {
+            ask : (data[askdict[ask]])[potnumber-1]
+        }
 
+def findalert():
+    mydb = connect()
+    pots = mydb["Pots"]
+    p = pots.find_one()
+    sta = mydb["Status"]
+    s = sta.find_one()
+    return {
+        "tank1_alert": int(not (s["HaveW"][0])),
+        "tank2_alert": int(not (s["HaveW"][1]))
+    }
 
 @app.route('/', methods=["GET"])
 def home():
@@ -91,14 +117,14 @@ def insert():
     x = mydb["test1"].insert_one(body)
     return "success"
 
-def reply_message(token, message):
+'''def reply_message(token, message):
     line_bot_api.reply_message(token, TextSendMessage(text=message))
 
 def broadcast_message(message):
     line_bot_api.broadcast(TextSendMessage(
         text=message))
 
-    return 'Notified Janitors'
+    return 'Notified Janitors'''
 
 
 @app.route("/add_pot", methods=["POST"])
@@ -120,6 +146,16 @@ def set_pot(potnumber, mode):
     print(type(mode))
     a = setpot(data["data"], potnumber, mode)
     return "ok number one"
+
+@app.route("/status/<potnumber>/<ask>", methods=["GET"])
+def ask_status(potnumber, ask):
+    res = askstatus(int(potnumber), ask)
+    return res
+
+@app.route("/alert", methods=["GET"])
+def alert():
+    res = findalert()
+    return res
 
 if __name__ == "__main__":
     # print("hello")
