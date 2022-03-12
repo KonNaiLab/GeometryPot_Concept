@@ -60,6 +60,7 @@ def setpot(data, potnumber, mode):
     pots = mydb["Pots"]
     x = pots.find_one()
     myquery = { "Name": "Demo" }
+    #myquery = { "Name": "xtest" }
     dat = x[modedict[mode]]
     if potnumber == "all":
         print("all")
@@ -126,8 +127,6 @@ def updatestatus(data, utype):
 
 @app.route('/', methods=["GET"])
 def home():
-    # print(.collection)
-
     return "Hello"
 
 @app.route('/add_data', methods=["POST"])
