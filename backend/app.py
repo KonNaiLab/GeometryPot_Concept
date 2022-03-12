@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, make_response
 import pymongo
 import os
+import datetime
 
 app = Flask(__name__)
 #mydb = myclient["Geometry_Pot"]
@@ -104,6 +105,25 @@ def findalert():
         "tank2_alert": int(not (s["HaveW"][1]))
     }
 
+def gotsetting():
+    mydb = connect()
+    pots = mydb["Pots"]
+    p = pots.find_one()
+    return p
+
+def gotmanual():
+    mydb = connect()
+    pots = mydb["Manual"]
+    p = pots.find_one()
+    return p
+
+def updatestatus(data, utype):
+    mydb = connect()
+    sta = mydb["Status"]
+    if utype == "light":
+        newvalues = { "$set": { "Light": data } }
+        sta.update_one({}, newvalues)
+
 @app.route('/', methods=["GET"])
 def home():
     # print(.collection)
@@ -147,6 +167,36 @@ def ask_status(potnumber, ask):
 def alert():
     res = findalert()
     return res
+
+@app.route("/light", methods=["GET"])
+def light():
+    a=datetime.datetime.now().time()
+    print(a.hour+(a.minute/100))
+    #print(a.minute)
+    #print(a.hour)
+    t = gotsetting()
+    m = gotmanual()
+    return {
+        "Curenttime": a.hour+(a.minute/100),
+        "Settingtime": t["Lighttime"],
+        "Manual" : m["light"]
+    }
+
+@app.route("/light", methods=["POST"])
+def lightup():
+    data = request.get_json()
+    updatestatus(data["data"], "light")
+    a=datetime.datetime.now().time()
+    print(a.hour+(a.minute/100))
+    #print(a.minute)
+    #print(a.hour)
+    t = gotsetting()
+    m = gotmanual()
+    return {
+        "Curenttime": a.hour+(a.minute/100),
+        "Settingtime": t["Lighttime"],
+        "Manual" : m["light"]
+    }
 
 if __name__ == "__main__":
     # print("hello")
