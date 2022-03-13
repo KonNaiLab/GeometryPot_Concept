@@ -73,6 +73,23 @@ def setpot(data, potnumber, mode):
     pots.update_one(myquery, newvalues)
     return 0
 
+def setman(data, potnumber, mode):
+    mydb = connect()
+    ### add to pots
+    pots = mydb["Manual"]
+    x = pots.find_one()
+    #myquery = { "Name": "xtest" }
+    dat = x[mode]
+    if potnumber == "all":
+        print("all")
+        dat[0] = data
+        dat[1] = data
+    else:
+        print(int(potnumber))
+        dat[int(potnumber)-1] = data
+    newvalues = { "$set": {mode: dat } }
+    pots.update_one({}, newvalues)
+
 def askstatus(potnumber, ask):
     askdict = {
         "light": "Light",
@@ -83,12 +100,18 @@ def askstatus(potnumber, ask):
     mydb = connect()
     status = mydb["Status"]
     data = status.find_one()
+    m = mydb["Manual"]
+    man = m.find_one()
     if ask == "all":
         return {
             "light": (data[askdict["light"]])[potnumber-1],
             "humid": (data[askdict["humid"]])[potnumber-1],
             "temp" : (data[askdict["temp"]])[potnumber-1],
             "tank" : (data[askdict["tank"]])[potnumber-1]
+        }
+    elif ask == "fan":
+        return {
+            ask : (man["fan"])[potnumber-1]
         }
     else:
         return {
@@ -118,11 +141,20 @@ def gotmanual():
     p = pots.find_one()
     return p
 
+def gotstatus():
+    mydb = connect()
+    status = mydb["Status"]
+    data = status.find_one()
+    return data
+
 def updatestatus(data, utype):
     mydb = connect()
     sta = mydb["Status"]
     if utype == "light":
         newvalues = { "$set": { "Light": data } }
+        sta.update_one({}, newvalues)
+    elif utype == "fan":
+        newvalues = { "$set": { "Temperature": data } }
         sta.update_one({}, newvalues)
 
 @app.route('/', methods=["GET"])
@@ -167,6 +199,7 @@ def alert():
     res = findalert()
     return res
 
+## คุมไฟ
 @app.route("/light", methods=["GET"])
 def light():
     a=datetime.datetime.now().time()
@@ -196,6 +229,50 @@ def lightup():
         "Settingtime": t["Lighttime"],
         "Manual" : m["light"]
     }
+
+
+
+@app.route("/fan", methods=["GET"])
+def fan():
+    t = gotsetting()
+    m = gotmanual()
+    s = gotstatus()
+    return {
+        "Currenttemp" : s["Temperature"],
+        "SettingTemp" : t["TemperatureLV"],
+        "Manual" : m["fan"]
+    }
+
+@app.route("/fan", methods=["POST"])
+def fan_p():
+    data = request.get_json()
+    t = gotsetting()
+    m = gotmanual()
+    s = gotstatus()
+    updatestatus(data["data"], "fan")
+    return {
+        "Currenttemp" : s["Temperature"],
+        "SettingTemp" : t["TemperatureLV"],
+        "Manual" : m["fan"]
+    }
+
+@app.route("/manual_fan/<potnumber>/<do>", methods=["POST"])
+def manualfan(potnumber, do):
+    dic_do = {
+        "on" : 2,
+        "off" : 1,
+        "auto" : 0
+    }
+    m = gotmanual()
+    if (m["fan"])[int(potnumber)-1] != dic_do[do]:
+        setman(dic_do[do],potnumber, "fan")
+        return {
+            "result" : "Success"
+        }
+    else:
+        return {
+            "result" : "error same"
+        }
 
 if __name__ == "__main__":
     # print("hello")
