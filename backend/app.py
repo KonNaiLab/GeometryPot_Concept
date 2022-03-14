@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, make_response
 import pymongo
 import os
 import datetime
+import time
 
 app = Flask(__name__)
 #mydb = myclient["Geometry_Pot"]
@@ -156,6 +157,9 @@ def updatestatus(data, utype):
     elif utype == "fan":
         newvalues = { "$set": { "Temperature": data } }
         sta.update_one({}, newvalues)
+    elif utype == "pump":
+        newvalues = { "$set": { "HaveW": data } }
+        sta.update_one({}, newvalues)
 
 @app.route('/', methods=["GET"])
 def home():
@@ -256,7 +260,7 @@ def fan_p():
         "Manual" : m["fan"]
     }
 
-@app.route("/manual_fan/<potnumber>/<do>", methods=["POST"])
+@app.route("/manual_fan/<potnumber>/<do>", methods=["GET"])
 def manualfan(potnumber, do):
     dic_do = {
         "on" : 2,
@@ -274,6 +278,48 @@ def manualfan(potnumber, do):
             "result" : "error same"
         }
 
+@app.route("/pump", methods=["POST"])
+def pumpp():
+    data = request.get_json()
+    t = gotsetting()
+    m = gotmanual()
+    updatestatus(data["data"], "pump")
+    s = gotstatus()
+
+    setman(0, "all", "pump")
+
+    return {
+        "Currenthumid" : s["Humid"],
+        "Settinghumid" : t["HumidityLV"],
+        "Manual" : m["pump"],
+        "Water" : s["HaveW"]
+    }
+
+@app.route("/man_pump/<potnumber>", methods=["GET"])
+def manpump(potnumber):
+    m = gotmanual()
+    s = gotstatus()
+    if (m["pump"])[int(potnumber)-1] == 1:
+        return {
+            "result" : "error same"
+        }
+    print(s["HaveW"][int(potnumber)-1])
+    if (s["HaveW"])[int(potnumber)-1] == 1: 
+        print("Wait 10s")
+        time.sleep(10)
+        s = gotstatus()
+        if (s["HaveW"])[int(potnumber)-1] != 1:
+            return {
+                "result" : "low water"
+            }
+        setman(1, potnumber, "pump")
+        return{
+            "result" : "Success"
+        }
+    return {
+        "result" : "low water"
+    }
+    
 if __name__ == "__main__":
     # print("hello")
     app.run(debug=True, port=5555)
