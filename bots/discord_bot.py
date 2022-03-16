@@ -12,21 +12,54 @@ async def on_ready() : #เมื่อระบบพร้อมใช้ง�
 async def on_message(message) : #ดักรอข้อความใน Chat
     if message.content.startswith('?>ping') : #เมื่อข้อความในตัวแรกมีคำว่า ping
        await message.channel.send('Pong ~ Meow ><') #ข้อความที่ต้องการตอบกลับ
+    await bot.process_commands(message)
 
-@bot.command(pass_context = True , aliases=['ว่าไง', 'สวัสดี', 'หวัดดี', 'hi'])
-async def hello(ctx) :
-    import random
-    greeting = ["โย่ ๆ", "ดีจ้า", "หวัดดีจ้า", "ฮายค่ะ", "จะหลับแล้วมีอะไรเหรอ?"]
-    print(random.choice(greeting))
-    await ctx.send(random.choice(greeting))
-    def recall():
-        rem = open("shorttimeremember.txt", "rt", encoding='utf8')
-        rtxt = rem.read()
-        print(rtxt)
-        return rtxt 
-    rem = recall()
-    if rem!="":
-        await ctx.send("อ่อใช่ อย่าลืมนะ")
-        await ctx.send(rem)
+@bot.command(pass_context = True , aliases=['สถานะ'])
+async def status(ctx, pot) :
+    import requests
+    import json
+    print(pot)
+    await ctx.send("กำลังหาข้อมูลสถานะกระถางที่ "+str(pot))
+    x = requests.get("http://localhost:5555/status/"+str(pot)+"/all")
+    print(x.json())
+    if x.json()["light"] == 0:
+        l = "ไฟปิดอยู่"
+    else:
+        l = "ไฟเปิดอยู่"
+    if x.json()["tank"] == 0:
+        h = "ใกล้หมด"
+    else:
+        h = "ปกติ"
+    await ctx.send(
+        "ไฟ: "+l 
+        +"\nความชื้น: "+ str(x.json()["humid"]) + "%"
+        +"\nอุณหภูมิ: "+ str(x.json()["temp"]) + "องศาเซลเซียส"
+        +"\nน้ำในถัง: "+ h
+    )
 
-bot.run('OTUyNDgyOTY0NTQ0MDU3MzU1.Yi2q4w.ZB6oFloQ-pOhxe4gz0YfyJ0FnTM') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
+@bot.command(pass_context = True , aliases=['ตั้งค่า'])
+async def setting(ctx, mode, pot, data) :
+    import requests
+    import json
+    mode_dict = {
+        "เวลาเปิดไฟ":"light",
+        "ความชื้น":"humid",
+        "อุณหภูมิ":"temp"
+    }
+    print(data)
+    print(type(data))
+    if mode_dict[str(mode)] == "light":
+        data = data.split("-")
+        for i in range(len(data)):
+            data[i] = float(data[i])
+    else:
+        data = int(data)
+    obj = {"data": data}
+    print(pot)
+    await ctx.send("กำลังตั้งค่ากระถางที่ "+str(pot))
+    x = requests.post("http://localhost:5555/set_pot/"+str(pot)+"/"+mode_dict[str(mode)], json=obj)
+    print(x.text)
+    if x.text == "ok number one":
+        await ctx.send("ตั้งค่าสำเร็จ")
+
+bot.run('bot') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
