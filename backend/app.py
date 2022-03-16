@@ -190,6 +190,8 @@ def set_pot(potnumber, mode):
     print(type(potnumber))
     print(mode)
     print(type(mode))
+    print(data["data"])
+    print(type(data["data"]))
     a = setpot(data["data"], potnumber, mode)
     return "ok number one"
 
