@@ -29,4 +29,4 @@ async def hello(ctx) :
         await ctx.send("อ่อใช่ อย่าลืมนะ")
         await ctx.send(rem)
 
-bot.run('OTUyNDgyOTY0NTQ0MDU3MzU1.Yi2q4w.ZB6oFloQ-pOhxe4gz0YfyJ0FnTM') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
+bot.run('token') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
