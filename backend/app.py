@@ -160,6 +160,9 @@ def updatestatus(data, utype):
     elif utype == "pump":
         newvalues = { "$set": { "HaveW": data } }
         sta.update_one({}, newvalues)
+    elif utype == "other":
+        newvalues = { "$set": { "Humid": data } }
+        sta.update_one({}, newvalues)
 
 @app.route('/', methods=["GET"])
 def home():
@@ -321,7 +324,18 @@ def manpump(potnumber):
     return {
         "result" : "low water"
     }
-    
+
+@app.route("/other", methods=["POST"])
+def other():
+    data = request.get_json()
+    updatestatus(data["data"], "other")
+    s = gotstatus()
+    return {
+        "Humid" : s["Humid"],
+        "Temp" : s["Temperature"],
+        "Water" : s["HaveW"]
+    }
+
 if __name__ == "__main__":
     # print("hello")
     app.run(debug=True, port=5555)
