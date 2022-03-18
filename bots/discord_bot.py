@@ -62,4 +62,18 @@ async def setting(ctx, mode, pot, data) :
     if x.text == "ok number one":
         await ctx.send("ตั้งค่าสำเร็จ")
 
+@bot.command(pass_context = True , aliases=['พัดลม'])
+async def fan(ctx, pot, do) :
+    import requests
+    dict_do = {
+        "เปิด" : 2,
+        "ปิด" : 1,
+        "อัตโนมัติ" : 0
+    }
+    x = requests.get("/manual_fan/"+str(pot)+"/"+dict_do[str(do)])
+    
+
+
+
+
 bot.run('bot') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
