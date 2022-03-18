@@ -66,14 +66,28 @@ async def setting(ctx, mode, pot, data) :
 async def fan(ctx, pot, do) :
     import requests
     dict_do = {
-        "เปิด" : 2,
-        "ปิด" : 1,
-        "อัตโนมัติ" : 0
+        "เปิด" : "on",
+        "ปิด" : "off",
+        "อัตโนมัติ" : "auto"
     }
-    x = requests.get("/manual_fan/"+str(pot)+"/"+dict_do[str(do)])
-    
+    x = requests.get("http://localhost:5555/manual_fan/"+str(pot)+"/"+dict_do[do])
+    result = x.json()
+    if result["result"] == "error same":
+        await ctx.send("ไม่สามารถทำคำสั่งที่ทำอยู่แล้ว")
+    elif result["result"] == "Success":
+        await ctx.send("พัดลมของกระถางที่"+ pot +" ถูกตั้งให้" + do)
 
+@bot.command(pass_context = True , aliases=['รดน้ำ'])
+async def manpump(ctx, pot) :
+    import requests
+    await ctx.send("คำสั่งรดน้ำอาจต้องรอถึง 10 วินาที...")
+    x = requests.get("http://localhost:5555/man_pump/"+str(pot))
+    result = x.json()
+    if result["result"] == "error same":
+        await ctx.send("ไม่สามารถทำคำสั่งที่กำลังทำ")
+    elif result["result"] == "Success":
+        await ctx.send("รดน้ำกระถางที่ " + pot + " แล้ว")
+    elif result["result"] == "low water":
+        await ctx.send("ไม่สามารถรดน้ำได้เนื่องจากมีปริมาณน้ำสะสมต่ำ")
 
-
-
-bot.run('bot') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
+bot.run('OTUyNDgyOTY0NTQ0MDU3MzU1.Yi2q4w.8dg7xK_wBxTgCpPimP3egYL3MqE') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
