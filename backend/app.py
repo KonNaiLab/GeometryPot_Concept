@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, make_response
 import pymongo
 import os
 import datetime
+import time
 
 app = Flask(__name__)
 #mydb = myclient["Geometry_Pot"]
@@ -70,8 +71,25 @@ def setpot(data, potnumber, mode):
         print(int(potnumber))
         dat[int(potnumber)-1] = data
     newvalues = { "$set": { modedict[mode]: dat } }
-    pots.update_one(myquery,  )
+    pots.update_one(myquery, newvalues)
     return 0
+
+def setman(data, potnumber, mode):
+    mydb = connect()
+    ### add to pots
+    pots = mydb["Manual"]
+    x = pots.find_one()
+    #myquery = { "Name": "xtest" }
+    dat = x[mode]
+    if potnumber == "all":
+        print("all")
+        dat[0] = data
+        dat[1] = data
+    else:
+        print(int(potnumber))
+        dat[int(potnumber)-1] = data
+    newvalues = { "$set": {mode: dat } }
+    pots.update_one({}, newvalues)
 
 def askstatus(potnumber, ask):
     askdict = {
@@ -83,12 +101,18 @@ def askstatus(potnumber, ask):
     mydb = connect()
     status = mydb["Status"]
     data = status.find_one()
+    m = mydb["Manual"]
+    man = m.find_one()
     if ask == "all":
         return {
             "light": (data[askdict["light"]])[potnumber-1],
             "humid": (data[askdict["humid"]])[potnumber-1],
             "temp" : (data[askdict["temp"]])[potnumber-1],
             "tank" : (data[askdict["tank"]])[potnumber-1]
+        }
+    elif ask == "fan":
+        return {
+            ask : (man["fan"])[potnumber-1]
         }
     else:
         return {
@@ -118,11 +142,26 @@ def gotmanual():
     p = pots.find_one()
     return p
 
+def gotstatus():
+    mydb = connect()
+    status = mydb["Status"]
+    data = status.find_one()
+    return data
+
 def updatestatus(data, utype):
     mydb = connect()
     sta = mydb["Status"]
     if utype == "light":
         newvalues = { "$set": { "Light": data } }
+        sta.update_one({}, newvalues)
+    elif utype == "fan":
+        newvalues = { "$set": { "Temperature": data } }
+        sta.update_one({}, newvalues)
+    elif utype == "pump":
+        newvalues = { "$set": { "HaveW": data } }
+        sta.update_one({}, newvalues)
+    elif utype == "other":
+        newvalues = { "$set": { "Humid": data } }
         sta.update_one({}, newvalues)
 
 @app.route('/', methods=["GET"])
@@ -154,6 +193,8 @@ def set_pot(potnumber, mode):
     print(type(potnumber))
     print(mode)
     print(type(mode))
+    print(data["data"])
+    print(type(data["data"]))
     a = setpot(data["data"], potnumber, mode)
     return "ok number one"
 
@@ -167,6 +208,7 @@ def alert():
     res = findalert()
     return res
 
+## คุมไฟ
 @app.route("/light", methods=["GET"])
 def light():
     a=datetime.datetime.now().time()
@@ -196,9 +238,103 @@ def lightup():
         "Settingtime": t["Lighttime"],
         "Manual" : m["light"]
     }
-@app.route("/test", methods=["GET"])
-def test():
-    return {"x":"com_X","y":13}
+
+
+
+@app.route("/fan", methods=["GET"])
+def fan():
+    t = gotsetting()
+    m = gotmanual()
+    s = gotstatus()
+    return {
+        "Currenttemp" : s["Temperature"],
+        "SettingTemp" : t["TemperatureLV"],
+        "Manual" : m["fan"]
+    }
+
+@app.route("/fan", methods=["POST"])
+def fan_p():
+    data = request.get_json()
+    t = gotsetting()
+    m = gotmanual()
+    s = gotstatus()
+    updatestatus(data["data"], "fan")
+    return {
+        "Currenttemp" : s["Temperature"],
+        "SettingTemp" : t["TemperatureLV"],
+        "Manual" : m["fan"]
+    }
+
+@app.route("/manual_fan/<potnumber>/<do>", methods=["GET"])
+def manualfan(potnumber, do):
+    dic_do = {
+        "on" : 2,
+        "off" : 1,
+        "auto" : 0
+    }
+    m = gotmanual()
+    if (m["fan"])[int(potnumber)-1] != dic_do[do]:
+        setman(dic_do[do],potnumber, "fan")
+        return {
+            "result" : "Success"
+        }
+    else:
+        return {
+            "result" : "error same"
+        }
+
+@app.route("/pump", methods=["POST"])
+def pumpp():
+    data = request.get_json()
+    t = gotsetting()
+    m = gotmanual()
+    updatestatus(data["data"], "pump")
+    s = gotstatus()
+
+    setman(0, "all", "pump")
+
+    return {
+        "Currenthumid" : s["Humid"],
+        "Settinghumid" : t["HumidityLV"],
+        "Manual" : m["pump"],
+        "Water" : s["HaveW"]
+    }
+
+@app.route("/man_pump/<potnumber>", methods=["GET"])
+def manpump(potnumber):
+    m = gotmanual()
+    s = gotstatus()
+    if (m["pump"])[int(potnumber)-1] == 1:
+        return {
+            "result" : "error same"
+        }
+    print(s["HaveW"][int(potnumber)-1])
+    if (s["HaveW"])[int(potnumber)-1] == 1: 
+        print("Wait 10s")
+        time.sleep(10)
+        s = gotstatus()
+        if (s["HaveW"])[int(potnumber)-1] != 1:
+            return {
+                "result" : "low water"
+            }
+        setman(1, potnumber, "pump")
+        return{
+            "result" : "Success"
+        }
+    return {
+        "result" : "low water"
+    }
+
+@app.route("/other", methods=["POST"])
+def other():
+    data = request.get_json()
+    updatestatus(data["data"], "other")
+    s = gotstatus()
+    return {
+        "Humid" : s["Humid"],
+        "Temp" : s["Temperature"],
+        "Water" : s["HaveW"]
+    }
 
 if __name__ == "__main__":
     # print("hello")
