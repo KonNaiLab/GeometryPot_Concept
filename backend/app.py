@@ -4,6 +4,19 @@ import os
 import datetime
 import time
 
+from linebot import (
+    LineBotApi, WebhookHandler
+)
+from linebot.exceptions import (
+    InvalidSignatureError
+)
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage,
+)
+line_bot_api = LineBotApi('ikDp2ap89gvpkrB4f9djOEfXSvvAyDcZ+yhKTfU+90oaTOsJn/AZdk51VK1rnnl7Hv19eJukOsx0YQWga1d76FlNNH0B+7Li23iOKUkL1nMkNpJgRuyKw1k/CLsY6ivV1wyTuzGV84B54xsq5tE30QdB04t89/1O/w1cDnyilFU=')
+handler = WebhookHandler('69b00f0f5fae1c6f51cda305a4acf289')
+from line_bot import *
+
 app = Flask(__name__)
 #mydb = myclient["Geometry_Pot"]
 #mycol = mydb["test1"]
@@ -286,11 +299,16 @@ def manualfan(potnumber, do):
 @app.route("/pump", methods=["POST"])
 def pumpp():
     data = request.get_json()
+    mydb = connect()
+    x=mydb["Status"]
+    if x["HaveW"][0]==1 and data["data"][0]==0:
+        broadcast_message("ต้นไม้กระถางที่ 1 ระดับน้ำถึงขีดจำกัดแล้ว")
+    if x["HaveW"][1]==1 and data["data"][1]==0:
+        broadcast_message("ต้นไม้กระถางที่ 2 ระดับน้ำถึงขีดจำกัดแล้ว")
     t = gotsetting()
     m = gotmanual()
     updatestatus(data["data"], "pump")
     s = gotstatus()
-
     setman(0, "all", "pump")
 
     return {
