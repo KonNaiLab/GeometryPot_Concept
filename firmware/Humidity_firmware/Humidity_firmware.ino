@@ -7,16 +7,19 @@ TaskHandle_t Task1;
 TaskHandle_t Task2;
 
 const TickType_t xDelay10000ms = pdMS_TO_TICKS(10000);   
-#define DHT_SENSOR_PIN_1 18 // ESP32 pin GIOP22 connected to DHT11 sensor
+#define DHT_SENSOR_PIN_1 5 // ESP32 pin GIOP22 connected to DHT11 sensor
 #define DHT_SENSOR_PIN_2 19 // ESP32 pin GIOP23 connected to DHT11 sensor
 #define DHT_SENSOR_TYPE DHT11
 
+#define Fan_1
+#define Fan_2
+
 DHT dht_sensor1(DHT_SENSOR_PIN_1, DHT_SENSOR_TYPE);
 DHT dht_sensor2(DHT_SENSOR_PIN_2, DHT_SENSOR_TYPE);
-String servername = "http://1e3b-2001-fb1-b9-3a35-1dcd-6e44-bf48-1939.ngrok.io/fan";
+String servername = "http://59a6-184-22-181-23.ngrok.io/fan";
 
-const char* ssid = "pluem";
-const char* password = "55483667";
+const char* ssid = "TP-Link_ppp";
+const char* password = "Palm2551";
 
 void choose_fan(){
   
@@ -153,9 +156,5 @@ void Task2code( void * pvParameters ){ //fan
     
     vTaskDelay(xDelay10000ms);    
   }
-
-}
-
-void loop() {
 
 }
