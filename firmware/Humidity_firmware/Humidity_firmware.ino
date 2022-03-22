@@ -1,6 +1,7 @@
 #include <DHT.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -10,9 +11,9 @@ const TickType_t xDelay10000ms = pdMS_TO_TICKS(10000);
 #define DHT_SENSOR_PIN_2 19 // ESP32 pin GIOP23 connected to DHT11 sensor
 #define DHT_SENSOR_TYPE DHT11
 
-
 DHT dht_sensor1(DHT_SENSOR_PIN_1, DHT_SENSOR_TYPE);
 DHT dht_sensor2(DHT_SENSOR_PIN_2, DHT_SENSOR_TYPE);
+String servername = "http://1e3b-2001-fb1-b9-3a35-1dcd-6e44-bf48-1939.ngrok.io/fan";
 
 const char* ssid = "pluem";
 const char* password = "55483667";
@@ -99,6 +100,28 @@ void Task1code(void * pvParameters){ //humidity
       Serial.print(tempF2);
       Serial.println("°F");
     } 
+    if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
+      String strC1 = String(tempC1);
+      String strC2 = String(tempC2);
+      HTTPClient https;  //Declare an object of class HTTPClient
+      String hlink = servername;
+      https.begin(servername); //Specify request destination
+      https.addHeader("Content-Type", "application/json");
+      String wrd = "{\"data\": [" + strC1 + "," + strC2 + "]}";
+      Serial.println(wrd);
+      int httpCode = https.POST(wrd); //Send the request
+   
+      if (httpCode > 0) { //Check the returning code
+        Serial.println("Success");
+        DynamicJsonDocument doc(2048);
+        String payload = https.getString();   //Get the request response payload
+        Serial.println(payload); //Print the response payload
+        deserializeJson(doc, payload);
+        float ctim = doc["Curenttemp"];
+        Serial.println(ctim);
+      }
+      https.end();   //Close connection
+    }
     vTaskDelay(xDelay10000ms);// wait a 2 seconds between readings    
   }
 
@@ -107,7 +130,7 @@ void Task1code(void * pvParameters){ //humidity
 void Task2code( void * pvParameters ){ //fan
   while(1){
     Serial.print("Task2 running on core ");  
-    if ((WiFi.status() == WL_CONNECTED)) { //Check the current connection status
+    /*if ((WiFi.status() == WL_CONNECTED)) { //Check the current connection status
     
       HTTPClient http;
     
@@ -126,7 +149,7 @@ void Task2code( void * pvParameters ){ //fan
       }
     
       http.end(); //Free the resources
-    }
+    }*/
     
     vTaskDelay(xDelay10000ms);    
   }
