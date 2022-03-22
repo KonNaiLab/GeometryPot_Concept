@@ -3,10 +3,6 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-TaskHandle_t Task1;
-TaskHandle_t Task2;
-
-const TickType_t xDelay10000ms = pdMS_TO_TICKS(10000);   
 #define DHT_SENSOR_PIN_1 18 // ESP32 pin GIOP22 connected to DHT11 sensor
 #define DHT_SENSOR_PIN_2 19 // ESP32 pin GIOP23 connected to DHT11 sensor
 #define DHT_SENSOR_TYPE DHT11
@@ -35,30 +31,9 @@ void setup() {
   
   Serial.println("Connected to the WiFi network");
 
-  //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
-  xTaskCreatePinnedToCore(
-                    Task1code,   /* Task function. */
-                    "Task1",     /* name of task. */
-                    10000,       /* Stack size of task */
-                    NULL,        /* parameter of the task */
-                    1,           /* priority of the task */
-                    &Task1,      /* Task handle to keep track of created task */
-                    0);          /* pin task to core 0 */                   
-
-  //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
-  xTaskCreatePinnedToCore(
-                    Task2code,   /* Task function. */
-                    "Task2",     /* name of task. */
-                    10000,       /* Stack size of task */
-                    NULL,        /* parameter of the task */
-                    1,           /* priority of the task */
-                    &Task2,      /* Task handle to keep track of created task */
-                    1);          /* pin task to core 1 */
 }
 
-void Task1code(void * pvParameters){ //humidity
-  // read humidity
-  while(1){
+void loop() {
     float humi1  = dht_sensor1.readHumidity(); // read temperature in Celsius
     float tempC1 = dht_sensor1.readTemperature(); // read temperature in Fahrenheit
     float tempF1 = dht_sensor1.readTemperature(true);
@@ -122,40 +97,5 @@ void Task1code(void * pvParameters){ //humidity
       }
       https.end();   //Close connection
     }
-    vTaskDelay(xDelay10000ms);// wait a 2 seconds between readings    
-  }
-
-}
-
-void Task2code( void * pvParameters ){ //fan
-  while(1){
-    Serial.print("Task2 running on core ");  
-    /*if ((WiFi.status() == WL_CONNECTED)) { //Check the current connection status
-    
-      HTTPClient http;
-    
-      http.begin("http://jsonplaceholder.typicode.com/comments?id=10"); //Specify the URL
-      int httpCode = http.GET();                                        //Make the request
-    
-      if (httpCode > 0) { //Check for the returning code
-    
-          String payload = http.getString();
-          Serial.println(httpCode);
-          Serial.println(payload);
-        }
-    
-      else {
-        Serial.println("Error on HTTP request");
-      }
-    
-      http.end(); //Free the resources
-    }*/
-    
-    vTaskDelay(xDelay10000ms);    
-  }
-
-}
-
-void loop() {
-
+    delay(10000);// wait a 2 seconds between readings   
 }
