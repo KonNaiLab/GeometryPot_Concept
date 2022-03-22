@@ -4,10 +4,11 @@
 #include <ArduinoJson.h>
 
 
+
 #define LED_A D1
 #define LED_B D2
 
-String servername = "http://5bc4-49-49-239-49.ngrok.io/light";
+String servername = "http://1e3b-2001-fb1-b9-3a35-1dcd-6e44-bf48-1939.ngrok.io/light";
 
 int digitalReadOutputPin(uint8_t pin)
 {
@@ -21,12 +22,12 @@ int digitalReadOutputPin(uint8_t pin)
 
 void setup() {
   // put your setup code here, to run once:
-  
+  WiFiClient wificlient;
   pinMode(LED_A,OUTPUT);
   pinMode(LED_B,OUTPUT);
   //digitalWrite(LED, LOW);
   Serial.begin(115200);
-  WiFi.begin("thamdeena 2.4G", "thamadee");
+  WiFi.begin("Komna", "0818723669");
   while (WiFi.status() != WL_CONNECTED) {
  
     delay(1000);
@@ -38,6 +39,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  WiFiClient wificlient;
   pinMode(LED_A,OUTPUT);
   pinMode(LED_B,OUTPUT);
   int state_A = digitalReadOutputPin(LED_A);
@@ -50,7 +52,7 @@ void loop() {
     String strB= String(state_B);
     HTTPClient https;  //Declare an object of class HTTPClient
     String hlink = servername;
-    https.begin(servername); //Specify request destination
+    https.begin(wificlient,"http://1e3b-2001-fb1-b9-3a35-1dcd-6e44-bf48-1939.ngrok.io/light"); //Specify request destination
     https.addHeader("Content-Type", "application/json");
     String wrd = "{\"data\": [" + strA + "," + strB + "]}";
     Serial.println(wrd);
