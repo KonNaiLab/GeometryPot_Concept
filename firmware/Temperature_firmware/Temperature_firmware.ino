@@ -3,12 +3,12 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-#define DHT_SENSOR_PIN_1 18 // ESP32 pin GIOP22 connected to DHT11 sensor
+#define DHT_SENSOR_PIN_1 5 // ESP32 pin GIOP22 connected to DHT11 sensor
 #define DHT_SENSOR_PIN_2 19 // ESP32 pin GIOP23 connected to DHT11 sensor
 #define DHT_SENSOR_TYPE DHT11
 
-#define Fan_1
-#define Fan_2
+#define Fan_1 23
+#define Fan_2 22
 
 DHT dht_sensor1(DHT_SENSOR_PIN_1, DHT_SENSOR_TYPE);
 DHT dht_sensor2(DHT_SENSOR_PIN_2, DHT_SENSOR_TYPE);
@@ -26,7 +26,8 @@ void setup() {
   dht_sensor1.begin(); // initialize the DHT sensor
   dht_sensor2.begin(); // initialize the DHT sensor
   WiFi.begin(ssid, password);
-  
+  pinMode(Fan_1, OUTPUT);
+  pinMode(Fan_2, OUTPUT);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
@@ -95,10 +96,47 @@ void loop() {
         String payload = https.getString();   //Get the request response payload
         Serial.println(payload); //Print the response payload
         deserializeJson(doc, payload);
-        float ctim = doc["Curenttemp"];
-        Serial.println(ctim);
+        float ctmp1 = doc["Currenttemp"][0];
+        float ctmp2 = doc["Currenttemp"][1];
+        float stmp1 = doc["SettingTemp"][0];
+        float stmp2 = doc["SettingTemp"][1];
+        int man1 = doc["Manual"][0];
+        int man2 = doc["Manual"][1];
+        Serial.println(man1);
+        Serial.println(ctmp1);
+        if(man1 == 2){
+          Serial.println("Fan 1 on");
+          digitalWrite(Fan_1, HIGH);
+        }
+        else if(man1 == 1){
+          digitalWrite(Fan_1, LOW);
+          Serial.println("Fan 1 off");
+        }
+        else{
+          if(ctmp1 > stmp1){
+            digitalWrite(Fan_1, HIGH);
+          }
+          else{
+            digitalWrite(Fan_1, LOW);
+          }
+        }
+        if(man2 == 2){
+          digitalWrite(Fan_2, HIGH);
+        }
+        else if(man2 == 1){
+          digitalWrite(Fan_2, LOW);
+        }
+        else{
+          if(ctmp2 > stmp2){
+            digitalWrite(Fan_2, HIGH);
+          }
+          else{
+            digitalWrite(Fan_2, LOW);
+          }
+        }
       }
       https.end();   //Close connection
     }
-    delay(10000);// wait a 2 seconds between readings   
+    
+    delay(10000);// wait a 10 seconds between readings   
 }
