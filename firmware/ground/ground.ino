@@ -3,9 +3,8 @@
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
 
-#define PIN1 34 //g1
-
-#define PIN2 35 //g2
+#define PIN1 D1 //g1
+#define PIN2 D2 //g2
 
 String SREVERNAME = "http://59a6-184-22-181-23.ngrok.io";
 
@@ -22,8 +21,14 @@ void setup() {
   }
   Serial.println("Connected to the WiFi network");
 }
-
+/*
+void setup() {
+  Serial.begin(115200); // set up serial port for 9600 baud (speed)
+    delay(1000);
+}
+*/
 void loop() {
+  
   WiFiClient wificlient;
   //int PIN_=digitalRead(PIN1);
   int PIN_L=map(PIN1, 0, 1023, 0, 100);
@@ -61,6 +66,7 @@ void loop() {
   Serial.println(sensorValue);
   
   delay(500); //wait for half a second, so it is easier to read
-  */
+  
   delay(10000);
+  */
 }
