@@ -3,7 +3,8 @@
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 
-
+#define ON 0
+#define OFF 1
 
 #define LED_A D1
 #define LED_B D2
@@ -17,7 +18,7 @@ int digitalReadOutputPin(uint8_t pin)
   if (port == NOT_A_PIN) 
     return LOW;
 
-  return (*portOutputRegister(port) & bit) ? HIGH : LOW;
+  return (*portOutputRegister(port) & bit) ? LOW : HIGH;
 }
 
 void setup() {
@@ -52,7 +53,7 @@ void loop() {
     String strB= String(state_B);
     HTTPClient https;  //Declare an object of class HTTPClient
     String hlink = servername;
-    https.begin(wificlient,"http://1e3b-2001-fb1-b9-3a35-1dcd-6e44-bf48-1939.ngrok.io/light"); //Specify request destination
+    https.begin(wificlient,"http://0c37-184-22-164-99.ngrok.io/light"); //Specify request destination
     https.addHeader("Content-Type", "application/json");
     String wrd = "{\"data\": [" + strA + "," + strB + "]}";
     Serial.println(wrd);
@@ -75,16 +76,20 @@ void loop() {
       Serial.println(stim_1_s);
       //Serial.println(stim_2);
       if((stim_1_s <= ctim)&&(stim_1_e >= ctim)){
-        digitalWrite(LED_A, HIGH);
-      }
-      else{
+        //digitalWrite(LED_A, HIGH);
         digitalWrite(LED_A, LOW);
       }
+      else{
+        //digitalWrite(LED_A, LOW);
+        digitalWrite(LED_A, HIGH);
+      }
       if((stim_2_s <= ctim)&&(stim_2_e >= ctim)){
-        digitalWrite(LED_B, HIGH);
+        //digitalWrite(LED_B, HIGH);
+        digitalWrite(LED_B, LOW);
       }
       else{
-        digitalWrite(LED_B, LOW);
+        //digitalWrite(LED_B, LOW);
+        digitalWrite(LED_B, HIGH);
       }
     }else Serial.println("An error ocurred");
     

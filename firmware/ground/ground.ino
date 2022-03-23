@@ -6,7 +6,7 @@
 #define PIN1 D1 //g1
 #define PIN2 D2 //g2
 
-String SREVERNAME = "http://59a6-184-22-181-23.ngrok.io";
+String SREVERNAME = "http://0c37-184-22-164-99.ngrok.io";
 
 const char* ssid = "com_x";
 const char* password = "wwwcomxx111";
