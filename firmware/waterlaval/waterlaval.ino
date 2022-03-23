@@ -9,7 +9,6 @@
 #define PIN4 19//reraly12
 
 String SREVERNAME = "http://59a6-184-22-181-23.ngrok.io";
-//String SREVERNAME2 = "http://398e-158-108-225-190.ngrok.io/man_pump/<potnumber>";
 
 const char* ssid = "com_x";
 const char* password = "wwwcomxx111";
