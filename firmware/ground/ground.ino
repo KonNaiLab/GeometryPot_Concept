@@ -1,12 +1,13 @@
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <ArduinoJson.h>
+
 
 #define PIN1 D1 //g1
 #define PIN2 D2 //g2
 
-String SREVERNAME = "http://61c3-184-22-181-208.ngrok.io ";
+String SREVERNAME = "http://61c3-184-22-181-208.ngrok.io/other";
 
 const char* ssid = "com_x";
 const char* password = "wwwcomxx111";
@@ -42,7 +43,7 @@ void loop() {
     String strB= String(PIN_R);
     HTTPClient http;
     String hlink = SREVERNAME;
-    http.begin(wificlient, SREVERNAME+"/other"); //Specisqfy the URL
+    http.begin(wificlient, SREVERNAME); //Specisqfy the URL
     http.addHeader("Content-Type", "application/json");
     String wrd = "{\"data\": [" + strA + "," + strB + "]}";
     
@@ -69,4 +70,5 @@ void loop() {
   
   delay(10000);
   */
+  delay(10000);
 }
