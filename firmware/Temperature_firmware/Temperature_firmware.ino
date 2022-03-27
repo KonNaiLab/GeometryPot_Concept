@@ -12,10 +12,10 @@
 
 DHT dht_sensor1(DHT_SENSOR_PIN_1, DHT_SENSOR_TYPE);
 DHT dht_sensor2(DHT_SENSOR_PIN_2, DHT_SENSOR_TYPE);
-String servername = "http://59a6-184-22-181-23.ngrok.io/fan";
+String servername = "http://11f2-184-22-167-181.ngrok.io/fan";
 
-const char* ssid = "TP-Link_ppp";
-const char* password = "Palm2551";
+const char* ssid = "Komna";
+const char* password = "0818723669";
 
 void choose_fan(){
   

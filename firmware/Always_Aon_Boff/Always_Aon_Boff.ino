@@ -17,7 +17,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   Serial.println("Running...");
   Serial.println("A on");
-  digitalWrite(LEDA, LOW);
+  digitalWrite(LEDA, HIGH);
   Serial.println("B off");
   digitalWrite(LEDB, HIGH);
   delay(10000);
