@@ -1,13 +1,13 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <WiFiClient.h>
 
 
-#define PIN1 D1 //g1
-#define PIN2 D2 //g2
+#define PIN1 36 //g1
+#define PIN2 39 //g2
 
-String SREVERNAME = "http://61c3-184-22-181-208.ngrok.io/other";
+String SREVERNAME = "http://11f2-184-22-167-181.ngrok.io/other";
 
 const char* ssid = "com_x";
 const char* password = "wwwcomxx111";
@@ -22,19 +22,14 @@ void setup() {
   }
   Serial.println("Connected to the WiFi network");
 }
-/*
-void setup() {
-  Serial.begin(115200); // set up serial port for 9600 baud (speed)
-    delay(1000);
-}
-*/
+
 void loop() {
   
   WiFiClient wificlient;
-  //int PIN_=digitalRead(PIN1);
-  int PIN_L=map(PIN1, 0, 1023, 0, 100);
-  //int PIN_R=digitalRead(PIN2);
-  int PIN_R=map(PIN2, 0, 1023, 0, 100);
+  int PIN_Lx=analogRead(PIN1);
+  int PIN_L=100-map(PIN_Lx, 0, 4094, 0, 100);
+  int PIN_Rx=analogRead(PIN2);
+  int PIN_R=100-map(PIN_Rx, 0, 4094, 0, 100);
   Serial.println("working");
 
 
@@ -57,18 +52,6 @@ void loop() {
     }
     http.end(); //Free the resources
   }
-  /*
-  int sensorValue;
-  sensorValue = analogRead(PIN1);
-  sensorValue = map(sensorValue, 0, 1023, 0, 100);
-  sensorValue=100-(sensorValue/10);
-  Serial.println("Analog Value : ");
-  
-  Serial.println(sensorValue);
-  
-  delay(500); //wait for half a second, so it is easier to read
-  
-  delay(10000);
-  */
+
   delay(10000);
 }
