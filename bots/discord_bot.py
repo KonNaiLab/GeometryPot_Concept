@@ -90,4 +90,4 @@ async def manpump(ctx, pot) :
     elif result["result"] == "low water":
         await ctx.send("ไม่สามารถรดน้ำได้เนื่องจากมีปริมาณน้ำสะสมต่ำ")
 
-bot.run('bot') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
+bot.run('OTUyNDgyOTY0NTQ0MDU3MzU1.Yi2q4w.7RfEZINFF_0r2WyfBBRIDdLRA0U') #รันบอท (โดยนำ TOKEN จากบอทที่เราสร้างไว้นำมาวาง)
