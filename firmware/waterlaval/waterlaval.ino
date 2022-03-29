@@ -1,18 +1,18 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 
 
-#define PIN1 D1//pump2y
-#define PIN2 D5//pump2
-#define PIN3 D3//reraly11
-#define PIN4 D4//reraly12
+#define PIN1 23//pump2y
+#define PIN2 22//pump2
+#define PIN3 21//reraly11
+#define PIN4 19//reraly12
 
-String SREVERNAME = "http://59a6-184-22-181-23.ngrok.io";
+String SREVERNAME = "http://11f2-184-22-167-181.ngrok.io";
 
-const char* ssid = "com_x";
-const char* password = "wwwcomxx111";
+const char* ssid = "Komna";
+const char* password = "0818723669";
 
 void setup() {
   Serial.begin(115200);

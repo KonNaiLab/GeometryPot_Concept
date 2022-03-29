@@ -9,8 +9,8 @@
 
 String SREVERNAME = "http://11f2-184-22-167-181.ngrok.io/other";
 
-const char* ssid = "com_x";
-const char* password = "wwwcomxx111";
+const char* ssid = "Komna";
+const char* password = "0818723669";
 
 void setup() {
   Serial.begin(115200); // set up serial port for 9600 baud (speed)
